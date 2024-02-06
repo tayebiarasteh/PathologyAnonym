@@ -41,7 +41,7 @@ class classification_data_preprocess():
         self.params = read_config(cfg_path)
 
 
-    def main(self, file_path_input ="/cluster/arasteh/Documents/datasets/anonymization/PEAKS/data_master_list_PEAKS.csv",
+    def main_org(self, file_path_input ="/cluster/arasteh/Documents/datasets/anonymization/PathologAnonym_project/masterlist_org.csv",
              ratio=0.1, exp_name='male', three_division=True):
         """main file after having a master csv, which divides to train, valid, test; and does preprocessing
 
@@ -172,6 +172,83 @@ class classification_data_preprocess():
         statistics_df.to_csv(statistics_df_path, sep=';', index=False)
 
 
+    def main_corresponding_anonymfiles(self, train_path_input ="/cluster/arasteh/Documents/datasets/anonymization/PathologAnonym_project/masterlist_org.csv",
+             test_path_input ="/cluster/arasteh/Documents/datasets/anonymization/PathologAnonym_project/masterlist_org.csv", exp_name='male', old_exp_name='male'):
+        """main file after having a master csv, which divides to train, valid, test; and does preprocessing
+
+        Parameters
+        ----------
+        exp_name: str
+            name of the experiment
+        """
+
+        train_output_df_path = os.path.join(self.params['file_path'], 'tisv_preprocess', exp_name, 'train_' + exp_name + '.csv')
+        valid_output_df_path = os.path.join(self.params['file_path'], 'tisv_preprocess', exp_name, 'valid_' + exp_name + '.csv')
+        test_output_df_path = os.path.join(self.params['file_path'], 'tisv_preprocess', exp_name, 'test_' + exp_name + '.csv')
+
+        statistics_df_path = os.path.join(self.params['file_path'], 'tisv_preprocess', exp_name, 'statistics_' + exp_name + '.csv')
+
+        final_train_df = pd.read_csv(train_path_input, sep=';')
+        final_test_df = pd.read_csv(test_path_input, sep=';')
+
+        # tisv preprocessing
+
+        print('\ntisv preprocess\n')
+        self.tisv_preproc_anonym(input_df=final_train_df, output_df_path=train_output_df_path, exp_name=exp_name, old_exp_name=old_exp_name)
+        self.tisv_preproc_anonym(input_df=final_test_df, output_df_path=test_output_df_path, exp_name=exp_name, old_exp_name=old_exp_name)
+
+        # saving histogram of the ages
+        # train
+        final_train_speaker_list = final_train_df['speaker_id'].unique().tolist()
+        age_list_train = []
+        for speaker in final_train_speaker_list:
+            age_list_train.append(final_train_df[final_train_df['speaker_id'] == speaker]['age_y'].mean())
+        plt.subplot(121)
+        plt.hist(age_list_train)
+        plt.xlabel('Age [years]')
+        plt.ylabel('Num Speakers')
+        plt.title("train | age: " + f"{np.mean(age_list_train):.1f}" + " +- " + f"{np.std(age_list_train):.1f}")
+
+        # test
+        final_test_speaker_list = final_test_df['speaker_id'].unique().tolist()
+        age_list_test = []
+        for speaker in final_test_speaker_list:
+            age_list_test.append(final_test_df[final_test_df['speaker_id'] == speaker]['age_y'].mean())
+        plt.subplot(122)
+        plt.hist(age_list_test)
+        plt.xlabel('Age [years]')
+        plt.ylabel('Num Speakers')
+        plt.title("test | age: " + f"{np.mean(age_list_test):.1f}" + " +- " + f"{np.std(age_list_test):.1f}")
+
+        # plt.savefig(histogram_path)
+
+        # statistics of the chosen dataset
+        train_speaker_size = len(final_train_df['speaker_id'].unique().tolist())
+        test_speaker_size = len(final_test_df['speaker_id'].unique().tolist())
+
+        train_length = final_train_df['file_length'].sum() / 3600
+        test_length = final_test_df['file_length'].sum() / 3600
+        train_age_mean = final_train_df['age_y'].mean()
+        test_age_mean = final_test_df['age_y'].mean()
+        train_age_std = final_train_df['age_y'].std()
+        test_age_std = final_test_df['age_y'].std()
+
+        train_WR_mean = final_train_df[final_train_df['automatic_WRR'] > 0]['automatic_WRR'].mean()
+        train_WR_std = final_train_df[final_train_df['automatic_WRR'] > 0]['automatic_WRR'].std()
+
+        test_WR_mean = final_test_df[final_test_df['automatic_WRR'] > 0]['automatic_WRR'].mean()
+        test_WR_std = final_test_df[final_test_df['automatic_WRR'] > 0]['automatic_WRR'].std()
+
+        statistics_df = pd.DataFrame(columns=['subset', 'exp_name', 'total_speakers', 'total_hours', 'age_mean', 'age_std', 'WR_mean', 'WR_std'])
+
+        statistics_df = statistics_df.append(pd.DataFrame([['train', exp_name, train_speaker_size, train_length, train_age_mean, train_age_std,
+                                                         train_WR_mean, train_WR_std]],
+                     columns=['subset', 'exp_name', 'total_speakers', 'total_hours', 'age_mean', 'age_std', 'WR_mean', 'WR_std']))
+        statistics_df = statistics_df.append(pd.DataFrame([['test', exp_name, test_speaker_size, test_length, test_age_mean, test_age_std,
+                                                         test_WR_mean, test_WR_std]],
+                     columns=['subset', 'exp_name', 'total_speakers', 'total_hours', 'age_mean', 'age_std', 'WR_mean', 'WR_std']))
+
+        statistics_df.to_csv(statistics_df_path, sep=';', index=False)
 
 
     def train_valid_test_csv_creator_PEAKS(self, input_df, ratio):
@@ -411,10 +488,10 @@ class classification_data_preprocess():
                                                         os.path.basename(row['relative_path']).replace('.wav', '.npy')),
                                        row['speaker_id'], row['subset'], row['gender'], row['location'], row['age_y'],
                                        row['microphone'], row['patient_control'], row['automatic_WRR'], utter_whole.shape[0] / self.params['preprocessing']['sr'],
-                                       row['user_id'], row['session'], row['automatic_WA'], row['father_tongue'], row['mother_tongue'], row['test_type'], row['mic_room'], row['diagnosis']
+                                       row['user_id'], row['session'], row['father_tongue'], row['mother_tongue'], row['test_type'], row['mic_room'], row['diagnosis']
                                         ]],
                                      columns=['relative_path', 'speaker_id', 'subset', 'gender', 'location', 'age_y', 'microphone',
-                                              'patient_control', 'automatic_WRR', 'file_length', 'user_id', 'session', 'automatic_WA', 'father_tongue',
+                                              'patient_control', 'automatic_WRR', 'file_length', 'user_id', 'session', 'father_tongue',
                                               'mother_tongue', 'test_type', 'mic_room', 'diagnosis'])
                 final_dataframe = final_dataframe.append(tempp)
 
@@ -424,6 +501,88 @@ class classification_data_preprocess():
         final_data = final_dataframe.sort_values(['relative_path'])
         final_data.to_csv(output_df_path, sep=';', index=False)
 
+
+
+    def tisv_preproc_anonym(self, input_df, output_df_path, exp_name, old_exp_name):
+        """
+        GE2E-loss-based pre-processing of validation & test utterances for text-independent speaker verification.
+        References:
+            https://github.com/JanhHyun/Speaker_Verification/
+            https://github.com/HarryVolek/PyTorch_Speaker_Verification/
+            https://github.com/resemble-ai/Resemblyzer/
+        """
+
+        # lower bound of utterance length
+        utter_min_len = (self.params['preprocessing']['tisv_frame'] * self.params['preprocessing']['hop'] +
+                         self.params['preprocessing']['window']) * self.params['preprocessing']['sr']
+
+        final_dataframe = pd.DataFrame([])
+
+        for index, row in tqdm(input_df.iterrows(), total=input_df.shape[0]):
+
+            row_relative_path = row['relative_path'].replace('tisv_preprocess/' + old_exp_name + '/PEAKS', 'PEAKS_anonymized')
+            row_relative_path = row_relative_path.replace('.npy', '.wav')
+
+            utter_path = os.path.join(self.params['file_path'], row_relative_path)
+            utter, sr = sf.read(utter_path)
+
+            # pre-processing and voice activity detection (VAD) part 1
+            utter = self.normalize_volume(utter, self.params['preprocessing']['audio_norm_target_dBFS'], increase_only=True)
+            utter = self.trim_long_silences(utter)
+            # if utter.shape[0] < utter_min_len:
+            #     continue
+
+            # basically this does nothing if 60 is chosen, 60 is too high, so the whole wav will be selected.
+            # This just makes an interval from beginning to the end.
+            intervals = librosa.effects.split(utter, top_db=30)  # voice activity detection part 2
+
+            for interval_index, interval in enumerate(intervals):
+                # if (interval[1] - interval[0]) > utter_min_len:  # If partial utterance is sufficiently long,
+                utter_part = utter[interval[0]:interval[1]]
+
+                # concatenate all the partial utterances of each utterance
+                if interval_index == 0:
+                    utter_whole = utter_part
+                else:
+                    try:
+                        utter_whole = np.hstack((utter_whole, utter_part))
+                    except:
+                        utter_whole = utter_part
+            if 'utter_whole' in locals():
+
+                S = librosa.core.stft(y=utter_whole, n_fft=self.params['preprocessing']['nfft'],
+                                      win_length=int(self.params['preprocessing']['window'] * self.params['preprocessing']['sr']),
+                                      hop_length=int(self.params['preprocessing']['hop'] * self.params['preprocessing']['sr']))
+                S = np.abs(S) ** 2
+                mel_basis = librosa.filters.mel(sr=self.params['preprocessing']['sr'], n_fft=self.params['preprocessing']['nfft'],
+                                                n_mels=self.params['preprocessing']['nmels'])
+
+                SS = np.log10(np.dot(mel_basis, S) + 1e-6)  # log mel spectrogram of partial utterance
+                os.makedirs(os.path.join(self.params['file_path'], 'tisv_preprocess', exp_name,
+                                         os.path.dirname(row_relative_path)), exist_ok=True)
+
+                rel_path = os.path.join(self.params['file_path'], 'tisv_preprocess', exp_name, os.path.dirname(row_relative_path),
+                                        os.path.basename(row_relative_path).replace('.wav', '.npy'))
+                np.save(rel_path, SS)
+
+                # add to the new dataframe
+                tempp = pd.DataFrame([[os.path.join('tisv_preprocess', exp_name,
+                                                    os.path.dirname(row_relative_path),
+                                                        os.path.basename(row_relative_path).replace('.wav', '.npy')),
+                                       row['speaker_id'], row['subset'], row['gender'], row['location'], row['age_y'],
+                                       row['microphone'], row['patient_control'], row['automatic_WRR'], utter_whole.shape[0] / self.params['preprocessing']['sr'],
+                                       row['user_id'], row['session'], row['father_tongue'], row['mother_tongue'], row['test_type'], row['mic_room'], row['diagnosis']
+                                        ]],
+                                     columns=['relative_path', 'speaker_id', 'subset', 'gender', 'location', 'age_y', 'microphone',
+                                              'patient_control', 'automatic_WRR', 'file_length', 'user_id', 'session', 'father_tongue',
+                                              'mother_tongue', 'test_type', 'mic_room', 'diagnosis'])
+                final_dataframe = final_dataframe.append(tempp)
+
+        # to check the criterion of 8 utters after VAD
+        final_dataframe = self.csv_speaker_trimmer(final_dataframe)
+         # sort based on speaker id
+        final_data = final_dataframe.sort_values(['relative_path'])
+        final_data.to_csv(output_df_path, sep=';', index=False)
 
 
     def csv_speaker_trimmer(self, input_df):
@@ -479,9 +638,9 @@ class Dataloader_dysarthria(Dataset):
         elif mode == 'test':
             self.main_df = pd.read_csv(os.path.join(self.file_base_dir, "tisv_preprocess", experiment_name, "test_" + experiment_name + ".csv"), sep=';')
 
+        self.main_df = self.main_df[self.main_df['file_length'] > 1.85] # to have at least 180 points
 
         self.speaker_list = self.main_df['speaker_id'].unique().tolist()
-
 
 
 
@@ -517,6 +676,7 @@ class Dataloader_dysarthria(Dataset):
         for index, row in shuff_selected_speaker_df.iterrows():
             # select a random utterance
             utterance = np.load(os.path.join(self.file_base_dir, row['relative_path']))
+
             # randomly sample a fixed specified length
             id = np.random.randint(0, utterance.shape[1] - self.sampling_val, 1)
             utterance = utterance[:, id[0]:id[0] + self.sampling_val]
@@ -525,7 +685,6 @@ class Dataloader_dysarthria(Dataset):
 
         output_tensor = np.stack((output_tensor, output_tensor, output_tensor), axis=1) # (n=M, c=3, h=melsize, w=sampling_val)
         output_tensor = torch.from_numpy(output_tensor) # (M, c, h) treated as (n, h, w)
-        # output_tensor = torch.from_numpy(np.transpose(output_tensor, axes=(0, 2, 1)))
 
 
         # one hot
@@ -553,6 +712,7 @@ class Dataloader_dysarthria(Dataset):
         disease_length = sum(self.main_df['patient_control'].values == 'patient')
         output_tensor = (full_length - disease_length) / (disease_length + epsilon)
 
+        output_tensor = torch.Tensor([output_tensor])
         return output_tensor
 
 
@@ -562,5 +722,10 @@ class Dataloader_dysarthria(Dataset):
 if __name__ == '__main__':
     handler = classification_data_preprocess(cfg_path="/home/soroosh/Documents/Repositories/PathologyAnonym/config/config.yaml")
 
-    handler.main(file_path_input ="/home/soroosh/Documents/datasets/anonymization/PEAKS/data_master_list_PEAKS.csv",
+    handler.main_org(file_path_input ="/home/soroosh/Documents/datasets/anonymization/PathologAnonym_project/masterlist_org.csv",
              ratio=0.3, exp_name='dysarthria_70_30', three_division=False)
+
+    handler.main_corresponding_anonymfiles(train_path_input ="/home/soroosh/Documents/datasets/anonymization/tisv_preprocess/dysarthria_70_30/train_dysarthria_70_30.csv",
+             test_path_input="/home/soroosh/Documents/datasets/anonymization/tisv_preprocess/dysarthria_70_30/test_dysarthria_70_30.csv",
+                                           exp_name='dysarthria_70_30_anonym', old_exp_name='dysarthria_70_30')
+

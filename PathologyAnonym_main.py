@@ -62,7 +62,9 @@ def main_train_disorder_detection(global_config_path="/home/soroosh/Documents/Re
         valid_loader = None
 
 
+    # model = timm.create_model('resnet18', num_classes=2, pretrained=True)
     model = timm.create_model('resnet34', num_classes=2, pretrained=True)
+    # model = timm.create_model('resnet50', num_classes=2, pretrained=True)
 
     loss_function = nn.BCEWithLogitsLoss
 
@@ -85,6 +87,6 @@ def main_train_disorder_detection(global_config_path="/home/soroosh/Documents/Re
 
 if __name__ == '__main__':
     cfg_path = "/home/soroosh/Documents/Repositories/PathologyAnonym/config/config.yaml"
-    delete_experiment(experiment_name='dysarthria_70_30', global_config_path=cfg_path)
+    delete_experiment(experiment_name='dysarthria_70_30_anonym', global_config_path=cfg_path)
 
-    main_train_disorder_detection(global_config_path=cfg_path, valid=True, resume=False, experiment_name='dysarthria_70_30')
+    main_train_disorder_detection(global_config_path=cfg_path, valid=True, resume=False, experiment_name='dysarthria_70_30_anonym')

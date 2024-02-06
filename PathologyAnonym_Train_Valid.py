@@ -424,8 +424,8 @@ class Training:
         print('------------------------------------------------------'
               '----------------------------------')
         print(f'epoch: {self.epoch} | '
-              f'epoch time: {iteration_hours}h {iteration_mins}m {iteration_secs:.2f}s | '
-              f'total time: {total_hours}h {total_mins}m {total_secs:.2f}s')
+              f'epoch time: {iteration_hours}h {iteration_mins}m {iteration_secs:.1f}s | '
+              f'total time: {total_hours}h {total_mins}m {total_secs:.1f}s')
         print(f'\n\tTrain loss: {train_loss:.4f}')
 
         if valid_loss:
@@ -435,8 +435,8 @@ class Training:
 
             # saving the training and validation stats
             msg = f'\n\n----------------------------------------------------------------------------------------\n' \
-                   f'epoch: {self.epoch} | epoch Time: {iteration_hours}h {iteration_mins}m {iteration_secs:.2f}s' \
-                   f' | total time: {total_hours}h {total_mins}m {total_secs:.2f}s | ' \
+                   f'epoch: {self.epoch} | epoch Time: {iteration_hours}h {iteration_mins}m {iteration_secs:.1f}s' \
+                   f' | total time: {total_hours}h {total_mins}m {total_secs:.1f}s | ' \
                   f'\n\n\tTrain loss: {train_loss:.4f} | ' \
                    f'Val. loss: {valid_loss:.4f} | avg AUROC: {valid_AUC.mean() * 100:.2f}% | avg accuracy: {valid_accuracy.mean() * 100:.2f}% ' \
                    f' | avg F1: {valid_F1.mean() * 100:.2f}% | avg specificity: {valid_specificity.mean() * 100:.2f}%' \
