@@ -48,7 +48,7 @@ def create_experiment(experiment_name, global_config_path):
 
 def create_experiment_folders(params):
     try:
-        path_keynames = ["network_output_path", "tb_logs_path", "stat_log_path", "output_data_path", "dvectors_path", "dvectors_foranonym_path", "dvectors_path_anonymized", "dvectors_path_original"]
+        path_keynames = ["network_output_path", "tb_logs_path", "stat_log_path", "output_data_path"]
         for key in path_keynames:
             params[key] = os.path.join(params['experiment_name'], params[key])
             os.makedirs(os.path.join(params['target_dir'], params[key]))
