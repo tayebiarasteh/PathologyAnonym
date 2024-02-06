@@ -12,7 +12,7 @@ import torch
 from torch import nn
 
 from config.serde import open_experiment, create_experiment, delete_experiment
-from data.classification_data import Dataloader_dysarthria
+from data.classification_data import Dataloader_disorder
 from PathologyAnonym_Train_Valid import Training
 import timm
 
@@ -47,8 +47,8 @@ def main_train_disorder_detection(global_config_path="/home/soroosh/Documents/Re
         params = create_experiment(experiment_name, global_config_path)
     cfg_path = params["cfg_path"]
 
-    train_dataset = Dataloader_dysarthria(cfg_path=cfg_path, mode='train', experiment_name=experiment_name)
-    valid_dataset = Dataloader_dysarthria(cfg_path=cfg_path, mode='test', experiment_name=experiment_name)
+    train_dataset = Dataloader_disorder(cfg_path=cfg_path, mode='train', experiment_name=experiment_name)
+    valid_dataset = Dataloader_disorder(cfg_path=cfg_path, mode='test', experiment_name=experiment_name)
 
     train_loader = torch.utils.data.DataLoader(dataset=train_dataset, batch_size=1,
                                                pin_memory=True, drop_last=True, shuffle=True, num_workers=10)
@@ -87,6 +87,7 @@ def main_train_disorder_detection(global_config_path="/home/soroosh/Documents/Re
 
 if __name__ == '__main__':
     cfg_path = "/home/soroosh/Documents/Repositories/PathologyAnonym/config/config.yaml"
-    delete_experiment(experiment_name='dysarthria_70_30_anonym', global_config_path=cfg_path)
+    # delete_experiment(experiment_name='dysarthria_70_30_contentmel_anonym', global_config_path=cfg_path)
 
-    main_train_disorder_detection(global_config_path=cfg_path, valid=True, resume=False, experiment_name='dysarthria_70_30_anonym')
+    main_train_disorder_detection(global_config_path=cfg_path, valid=True, resume=False, experiment_name='dysarthria_70_30_contentmel')
+    # main_train_disorder_detection(global_config_path=cfg_path, valid=True, resume=False, experiment_name='dysarthria_70_30_contentmel_anonym')
