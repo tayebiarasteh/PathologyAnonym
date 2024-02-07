@@ -10,11 +10,14 @@ import os
 from torch.utils.data import DataLoader
 import torch
 from torch import nn
+import timm
+import numpy as np
+from tqdm import tqdm
 
 from config.serde import open_experiment, create_experiment, delete_experiment
 from data.classification_data import Dataloader_disorder
 from PathologyAnonym_Train_Valid import Training
-import timm
+from pathanonym_Prediction import Prediction
 
 import warnings
 warnings.filterwarnings('ignore')
@@ -82,6 +85,57 @@ def main_train_disorder_detection(global_config_path="/home/soroosh/Documents/Re
 
 
 
+def main_eval_test_disorder_detection(global_config_path="/home/soroosh/Documents/Repositories/PathologyAnonym/config/config.yaml",
+                   experiment_name='name', avg_epochs=10, model_epoch=50):
+    """Main function for testing.
+
+    Parameters
+    ----------
+    global_config_path: str
+        always global_config_path="/home/soroosh/Documents/Repositories/PathologyAnonym/config/config.yaml"
+
+    """
+    params = open_experiment(experiment_name, global_config_path)
+    cfg_path = params['cfg_path']
+
+    # model = timm.create_model('resnet18', num_classes=2, pretrained=True)
+    model = timm.create_model('resnet34', num_classes=2, pretrained=True)
+    # model = timm.create_model('resnet50', num_classes=2, pretrained=True)
+
+    predictor = Prediction(cfg_path)
+    predictor.setup_model(model=model, model_epoch=model_epoch)
+    # average_f1_score, average_AUROC, average_accuracy, average_specificity, average_sensitivity, average_precision = 0,0,0,0,0,0
+    average_f1_score = []
+    average_AUROC = []
+    average_accuracy = []
+    average_specificity = []
+    average_sensitivity = []
+    average_precision = []
+
+    for _ in tqdm(range(avg_epochs)):
+        test_dataset = Dataloader_disorder(cfg_path=cfg_path, mode='test', experiment_name=experiment_name)
+        test_loader = torch.utils.data.DataLoader(dataset=test_dataset, batch_size=1,
+                                                  pin_memory=True, drop_last=False, shuffle=False, num_workers=15)
+
+        f1_score, AUROC, accuracy, specificity, sensitivity, precision = predictor.predict(test_loader=test_loader)
+
+        average_f1_score.append(f1_score)
+        average_AUROC.append(AUROC)
+        average_accuracy.append(accuracy)
+        average_specificity.append(specificity)
+        average_sensitivity.append(sensitivity)
+        average_precision.append(precision)
+
+    final_f1_score = np.stack(average_f1_score).mean(1)
+    final_AUROC = np.stack(average_AUROC).mean(1)
+    final_accuracy = np.stack(average_accuracy).mean(1)
+    final_specificity = np.stack(average_specificity).mean(1)
+    final_sensitivity = np.stack(average_sensitivity).mean(1)
+    final_precision = np.stack(average_precision).mean(1)
+
+    predictor.savings_prints(valid_F1=final_f1_score, valid_AUC=final_AUROC, valid_accuracy=final_accuracy, valid_specificity=final_specificity,
+                             valid_sensitivity=final_sensitivity, valid_precision=final_precision, avg_epochs=avg_epochs)
+
 
 
 
@@ -89,5 +143,8 @@ if __name__ == '__main__':
     cfg_path = "/home/soroosh/Documents/Repositories/PathologyAnonym/config/config.yaml"
     # delete_experiment(experiment_name='dysarthria_70_30_contentmel_anonym', global_config_path=cfg_path)
 
-    main_train_disorder_detection(global_config_path=cfg_path, valid=True, resume=False, experiment_name='dysarthria_70_30_contentmel')
+    # main_train_disorder_detection(global_config_path=cfg_path, valid=True, resume=False, experiment_name='dysarthria_70_30_contentmel')
     # main_train_disorder_detection(global_config_path=cfg_path, valid=True, resume=False, experiment_name='dysarthria_70_30_contentmel_anonym')
+
+
+    main_eval_test_disorder_detection(global_config_path=cfg_path, experiment_name='dysarthria_70_30_contentmel', avg_epochs=20, model_epoch=5)
