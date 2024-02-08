@@ -640,20 +640,22 @@ class classification_tisvcontentbased_data_preprocess():
 
         selected_df = pd.read_csv(file_path_input, sep=';')
 
-        selected_df = selected_df[selected_df['subset'] == 'adults']
+        selected_df = selected_df[selected_df['subset'] == 'children']
         selected_df = selected_df[selected_df['automatic_WRR'] > 0]
         selected_df = selected_df[selected_df['age_y'] > 0]
 
-        patient_df = selected_df[selected_df['mic_room'] == 'plantronics'] # means all the dysarthria (must be combined with adults only)
+        # patient_df = selected_df[selected_df['mic_room'] == 'plantronics'] # means all the dysarthria (must be combined with adults only)
         # patient_df = selected_df[selected_df['mic_room'] == 'logitech'] # means all the dysphonia (must be combined with adults only)
-        # patient_df = selected_df[selected_df['mic_room'] == 'maxillofacial'] # means all the dysglossia (must be combined with adults only)
+        patient_df = selected_df[selected_df['mic_room'] == 'maxillofacial'] # means all the dysglossia (must be combined with adults only)
         patient_df = patient_df[patient_df['patient_control'] == 'patient']
 
         # randomly reducing the number of patients to up to 2x of control
-        patient_df = self.csv_reducing(patient_df, 160) # we have 81 adult controls
+        # patient_df = self.csv_reducing(patient_df, 160) # we have 81 adult controls
 
         control_df = selected_df[selected_df['mic_room'] == 'control_group_plantronics']
         control_df = control_df[control_df['patient_control'] == 'control']
+        # randomly reducing the number of control (children) to up to 1.5x of patients
+        control_df = self.csv_reducing(control_df, 800) # we have 81 adult controls
 
         # len(control_df['speaker_id'].unique())
 
@@ -745,7 +747,7 @@ class classification_tisvcontentbased_data_preprocess():
         statistics_df.to_csv(statistics_df_path, sep=';', index=False)
 
 
-    def main_corresponding_anonymfiles(self, exp_name='male', old_exp_name='male'):
+    def main_corresponding_anonymfiles(self, exp_name='male', old_exp_name='male', anonym_method='PEAKS_anonymized'):
         """main file after having a master csv, which divides to train, valid, test; and does preprocessing
 
         Parameters
@@ -769,8 +771,8 @@ class classification_tisvcontentbased_data_preprocess():
         # tisv preprocessing
 
         print('\ntisv preprocess\n')
-        self.get_mel_content_anonym(input_df=final_train_df, output_df_path=train_output_df_path, exp_name=exp_name, old_exp_name=old_exp_name)
-        self.get_mel_content_anonym(input_df=final_test_df, output_df_path=test_output_df_path, exp_name=exp_name, old_exp_name=old_exp_name)
+        self.get_mel_content_anonym(input_df=final_train_df, output_df_path=train_output_df_path, exp_name=exp_name, old_exp_name=old_exp_name, anonym_method=anonym_method)
+        self.get_mel_content_anonym(input_df=final_test_df, output_df_path=test_output_df_path, exp_name=exp_name, old_exp_name=old_exp_name, anonym_method=anonym_method)
 
         # saving histogram of the ages
         # train
@@ -898,7 +900,7 @@ class classification_tisvcontentbased_data_preprocess():
         final_data.to_csv(output_df_path, sep=';', index=False)
 
 
-    def get_mel_content_anonym(self, input_df, output_df_path, exp_name, old_exp_name):
+    def get_mel_content_anonym(self, input_df, output_df_path, exp_name, old_exp_name, anonym_method='PEAKS_anonymized'):
         """
         References:
             https://github.com/RF5/simple-autovc/
@@ -920,7 +922,7 @@ class classification_tisvcontentbased_data_preprocess():
         for index, row in tqdm(input_df.iterrows(), total=input_df.shape[0]):
 
             row_relative_path = row['relative_path'].replace('tisv_preprocess/' + old_exp_name + '/PEAKS',
-                                                             'PEAKS_anonymized')
+                                                             anonym_method)
             row_relative_path = row_relative_path.replace('.npy', '.wav')
 
             # Read audio file
@@ -1226,6 +1228,12 @@ class Dataloader_disorder(Dataset):
         elif shuff_selected_speaker_df['patient_control'].values[0] == 'control':
             label = torch.zeros((self.params['Network']['M']), 2)
             label[:, 0] = 1
+        elif shuff_selected_speaker_df['mic_room'].values[0] == 'control_group_plantronics':
+            label = torch.zeros((self.params['Network']['M']), 2)
+            label[:, 0] = 1
+        elif shuff_selected_speaker_df['mic_room'].values[0] == 'maxillofacial':
+            label = torch.zeros((self.params['Network']['M']), 2)
+            label[:, 0] = 0
 
         label = label.float()
 
