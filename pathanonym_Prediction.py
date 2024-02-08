@@ -106,6 +106,25 @@ class Prediction:
                f' | recall (sensitivity): {valid_sensitivity.mean() * 100:.2f} ± {valid_sensitivity.std() * 100:.2f}%\n\n'
         with open(os.path.join(self.params['target_dir'], self.params['stat_log_path']) + '/test_results', 'a') as f:
             f.write(msg)
+        
+        
+        # Create a dictionary with your data, where keys are column names and values are the arrays.
+        data = {
+            'AUC': valid_AUC,
+            'accuracy': valid_accuracy,
+            'f1_score': valid_F1,
+            'specificity': valid_specificity,
+            'sensitivity': valid_sensitivity,
+            'precision': valid_precision
+        }
+
+        # Convert the dictionary into a pandas DataFrame.
+        df = pd.DataFrame(data)
+
+        # Save the DataFrame to a CSV file.
+        csv_file_path = os.path.join(self.params['target_dir'], self.params['stat_log_path']) + '/test_results.csv'  # Specify your desired path and file name.
+        df.to_csv(csv_file_path, index=False)  # `index=False` to not include row indices in the CSV.
+
 
 
 

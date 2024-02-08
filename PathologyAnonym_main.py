@@ -13,6 +13,8 @@ from torch import nn
 import timm
 import numpy as np
 from tqdm import tqdm
+import pandas as pd
+from scipy.stats import ttest_ind
 
 from config.serde import open_experiment, create_experiment, delete_experiment
 from data.classification_data import Dataloader_disorder
@@ -139,6 +141,63 @@ def main_eval_test_disorder_detection(global_config_path="/home/soroosh/Document
 
 
 
+def pvalue_ttest(global_config_path="/home/soroosh/Documents/Repositories/PathologyAnonym/config/config.yaml", experiment_name='name',
+                 df1_path="/home/soroosh/Documents/Repositories_target_files/PathologyAnonym/CLP_70_30_contentmel/stat_log/test_results.csv",
+                   df2_path='/home/soroosh/Documents/Repositories_target_files/PathologyAnonym/CLP_70_30_contentmel_anonym/stat_log/test_results.csv'):
+
+    params = open_experiment(experiment_name, global_config_path)
+
+    # Read the CSV files into pandas DataFrames
+    df_model1 = pd.read_csv(df1_path)
+    df_model2 = pd.read_csv(df2_path)
+
+    # Initialize a dictionary to hold the t-test results and additional statistics
+    t_test_results = {}
+
+    # Iterate over the columns to perform t-tests for each metric
+    for column in df_model1.columns:
+        # Perform an unpaired two-sided t-test for the current metric
+        t_stat, p_value = ttest_ind(df_model1[column], df_model2[column], equal_var=False)
+
+        # Calculate mean and standard deviation for each model
+        mean_model1 = df_model1[column].mean()
+        mean_model2 = df_model2[column].mean()
+        std_model1 = df_model1[column].std()
+        std_model2 = df_model2[column].std()
+
+        # Store the results and additional statistics in the dictionary
+        t_test_results[column] = {
+            't-statistic': t_stat,
+            'p-value': p_value,
+            'mean_model1': mean_model1,
+            'mean_model2': mean_model2,
+            'std_model1': std_model1,
+            'std_model2': std_model2
+        }
+
+    # Save the results to a text file
+    results_file_path = 't_test_results.txt'
+    with open(os.path.join(params['target_dir'], params['stat_log_path']) + '/pvalues', 'w') as file:
+        for metric, results in t_test_results.items():
+            file.write(f"{metric}:\n")
+            file.write(f"t-statistic = {results['t-statistic']:.3f}, p-value = {results['p-value']:.3f}\n")
+            file.write(
+                f"Mean (Model 1) = {results['mean_model1'] * 100:.2f}%, Std Dev (Model 1) = {results['std_model1'] * 100:.2f}%\n")
+            file.write(
+                f"Mean (Model 2) = {results['mean_model2'] * 100:.2f}%, Std Dev (Model 2) = {results['std_model2'] * 100:.2f}%\n\n")
+
+    print(f'Results saved to {results_file_path}')
+
+
+
+
+
+
+
+
+
+
+
 if __name__ == '__main__':
     cfg_path = "/home/soroosh/Documents/Repositories/PathologyAnonym/config/config.yaml"
     # delete_experiment(experiment_name='dysarthria_70_30_contentmel_anonym', global_config_path=cfg_path)
@@ -147,4 +206,11 @@ if __name__ == '__main__':
     # main_train_disorder_detection(global_config_path=cfg_path, valid=True, resume=False, experiment_name='dysarthria_70_30_contentmel_anonym')
 
 
-    main_eval_test_disorder_detection(global_config_path=cfg_path, experiment_name='dysarthria_70_30_contentmel', avg_epochs=20, model_epoch=5)
+    main_eval_test_disorder_detection(global_config_path=cfg_path, experiment_name='dysarthria_70_30_contentmel', avg_epochs=50, model_epoch=5)
+    
+    
+    pvalue_ttest(global_config_path="/home/soroosh/Documents/Repositories/PathologyAnonym/config/config.yaml",
+         experiment_name='CLP_70_30_contentmel',
+         df1_path="/home/soroosh/Documents/Repositories_target_files/PathologyAnonym/CLP_70_30_contentmel/stat_logs/test_results.csv",
+         df2_path='/home/soroosh/Documents/Repositories_target_files/PathologyAnonym/CLP_70_30_contentmel_anonym/stat_logs/test_results.csv')
+

@@ -1189,6 +1189,13 @@ class Dataloader_disorder(Dataset):
         selected_speaker = self.speaker_list[idx]
         selected_speaker_df = self.main_df[self.main_df['speaker_id'] == selected_speaker]
 
+        # while len(selected_speaker_df) < self.params['Network']['M']:
+        #     try:
+        #         selected_speaker = self.speaker_list[idx+1]
+        #     except:
+        #         selected_speaker = self.speaker_list[idx-1]
+        #     selected_speaker_df = self.main_df[self.main_df['speaker_id'] == selected_speaker]
+
         # randomly select M utterances from the speaker
         shuff_selected_speaker_df = selected_speaker_df.sample(frac=1).reset_index(drop=True)
 
@@ -1203,6 +1210,9 @@ class Dataloader_disorder(Dataset):
             id = np.random.randint(0, utterance.shape[1] - self.sampling_val, 1)
             utterance = utterance[:, id[0]:id[0] + self.sampling_val]
 
+            output_tensor.append(utterance)
+
+        while len(output_tensor) < self.params['Network']['M']:
             output_tensor.append(utterance)
 
         output_tensor = np.stack((output_tensor, output_tensor, output_tensor), axis=1) # (n=M, c=3, h=melsize, w=sampling_val)
