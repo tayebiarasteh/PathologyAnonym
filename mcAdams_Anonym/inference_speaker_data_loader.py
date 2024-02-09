@@ -55,7 +55,8 @@ class loader_for_dvector_creation:
         self.utter_min_len = (self.params['preprocessing']['tisv_frame'] * self.params['preprocessing']['hop'] +
                          self.params['preprocessing']['window']) * self.params['preprocessing']['sr']
         self.nmels = spk_nmels
-        self.main_df = pd.read_csv(os.path.join(self.params['file_path'], "PathologAnonym_project/masterlist_org.csv"), sep=';')
+        self.main_df = pd.read_csv(os.path.join(self.params['file_path'], "PathologAnonym_project/all_70_30_contentmel.csv"), sep=';')
+        # self.main_df = pd.read_csv(os.path.join(self.params['file_path'], "PathologAnonym_project/masterlist_org.csv"), sep=';')
 
 
     def provide_data_original(self):
@@ -85,7 +86,7 @@ class loader_for_dvector_creation:
         return speakers
 
 
-    def provide_data_anonymized(self):
+    def provide_data_anonymized(self, anonym_utter_dirname='PEAKS_random05_mcadams_anonymized'):
         """
         Returns
         -------
@@ -104,7 +105,8 @@ class loader_for_dvector_creation:
 
             for index, row in selected_speaker_df.iterrows():
                 path = os.path.join(self.file_path, row['relative_path'])
-                path_anonymized = path.replace('/PEAKS', '/PEAKS_mcadams_anonymized')
+                path_anonymized = path.replace('/PEAKS', '/' + anonym_utter_dirname)
+                # path_anonymized = path.replace('/PEAKS', '/PEAKS_random_mcadams_anonymized')
                 try:
                     utter, sr = sf.read(path_anonymized)
                 except:
@@ -241,14 +243,26 @@ class anonymizer_loader:
         self.file_path = self.params['file_path']
         self.nmels = nmels
         self.setup_cuda()
-        self.main_df = pd.read_csv(os.path.join(self.params['file_path'], "PathologAnonym_project/masterlist_org.csv"), sep=';')
+        self.main_df = pd.read_csv(os.path.join(self.params['file_path'], "PathologAnonym_project/all_70_30_contentmel.csv"), sep=';')
+        # self.main_df = pd.read_csv(os.path.join(self.params['file_path'], "PathologAnonym_project/masterlist_org.csv"), sep=';')
 
-
+        # self.main_df = self.main_df[self.main_df['subset'] == 'children']
         self.main_df = self.main_df[self.main_df['subset'] == 'adults']
+        self.main_df = self.main_df[self.main_df['automatic_WRR'] > 0]
+        self.main_df = self.main_df[self.main_df['age_y'] > 0]
 
+        # self.main_df = self.main_df[self.main_df['mic_room'] == 'plantronics'] # means all the dysarthria (must be combined with adults only)
+        # patient_df = selected_df[selected_df['mic_room'] == 'logitech'] # means all the dysphonia (must be combined with adults only)
+        # patient_df = selected_df[selected_df['mic_room'] == 'maxillofacial'] # means all the dysglossia (must be combined with adults only)
+        # self.main_df = self.main_df[self.main_df['patient_control'] == 'patient']
+
+
+        # self.main_df = self.main_df[self.main_df['subset'] == 'adults']
+        # #
         # self.main_df = self.main_df[self.main_df['mic_room'] == 'logitech'] # all dysphonia
-        self.main_df = self.main_df[self.main_df['mic_room'] == 'control_group_plantronics'] # all adult controls
+        # self.main_df = self.main_df[self.main_df['mic_room'] == 'control_group_plantronics'] # all adult controls
 
+        # criteria for choosing a subset of df
 
 
 
@@ -333,19 +347,21 @@ class anonymizer_loader:
         scipy.io.wavfile.write(output_path, sr, np.float32(sig_rec))
 
 
-    def do_anonymize(self):
+    def do_anonymize(self, mcadams_coef=0.8, output_utter_dirname='PEAKS_random05_mcadams_anonymized'):
         self.speaker_list = self.main_df['speaker_id'].unique().tolist()
         for speaker_name in tqdm(self.speaker_list):
 
+            # mcadams_coef = random.uniform(0.5, 0.9)
             selected_speaker_df = self.main_df[self.main_df['speaker_id'] == speaker_name]
 
             for index, row in selected_speaker_df.iterrows():
                 original_path = os.path.join(self.file_path, row['relative_path'])
                 utterance, sr = sf.read(original_path)
-                os.makedirs(os.path.dirname(original_path.replace('/PEAKS', '/PEAKS_mcadams_anonymized')), exist_ok=True)
-                output_path = original_path.replace('/PEAKS', '/PEAKS_mcadams_anonymized')
+                os.makedirs(os.path.dirname(original_path.replace('/PEAKS', '/' + output_utter_dirname)), exist_ok=True)
+                output_path = original_path.replace('/PEAKS', '/' + output_utter_dirname)
 
-                self.single_anonymize(utterance=utterance, sr=sr, output_path=output_path)
+                self.single_anonymize(utterance=utterance, sr=sr, output_path=output_path, mcadams=mcadams_coef)
+                # self.single_anonymize(utterance=utterance, sr=sr, output_path=output_path)
 
 
 
@@ -583,8 +599,12 @@ class anonymized_dvector_loader:
             # randomly sample a fixed specified length
             if embedding.shape[0] == self.M:
                 id = np.array([0])
-            else:
+            elif embedding.shape[0] > self.M:
                 id = np.random.randint(0, embedding.shape[0] - self.M, 1)
+            else:
+                diff = self.M - embedding.shape[0]
+                id = np.array([0])
+                embedding = np.vstack((embedding, embedding[0:diff]))
             embedding = embedding[id[0]:id[0] + self.M]
             output_tensor_anonymized.append(embedding)
         output_tensor_anonymized = np.stack(output_tensor_anonymized)
