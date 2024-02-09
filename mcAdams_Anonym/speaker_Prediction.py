@@ -133,7 +133,7 @@ class Prediction:
 
 
     # below needed
-    def dvector_prediction(self, test_loader, anonymized=False):
+    def dvector_prediction(self, test_loader, anonymized=False, subsetname='dysphonia'):
         """
         Prediction
         For d-vector creation (prediction of the input utterances)
@@ -172,13 +172,24 @@ class Prediction:
                 embeddings = np.array(embeddings_list)
                 # save embedding as numpy file
                 if anonymized:
-                    np.save(os.path.join(os.path.join(self.params['target_dir'], self.params['dvectors_path_anonymized']), str(speaker_name) + ".npy"), embeddings)
+                    if subsetname == 'dysphonia':
+                        np.save(os.path.join(os.path.join(self.params['target_dir'], self.params['dvectors_path_anony_dysphonia']), str(speaker_name) + ".npy"), embeddings)
+                    elif subsetname == 'dysarthria':
+                        np.save(os.path.join(os.path.join(self.params['target_dir'], self.params['dvectors_path_anony_dysarthria']), str(speaker_name) + ".npy"), embeddings)
+                    elif subsetname == 'dysglossia':
+                        np.save(os.path.join(os.path.join(self.params['target_dir'], self.params['dvectors_path_anony_dysglossia']), str(speaker_name) + ".npy"), embeddings)
+
                 else:
-                    np.save(os.path.join(os.path.join(self.params['target_dir'], self.params['dvectors_path_original']), str(speaker_name) + ".npy"), embeddings)
+                    if subsetname == 'dysphonia':
+                        np.save(os.path.join(os.path.join(self.params['target_dir'], self.params['dvectors_path_original_dysphonia']), str(speaker_name) + ".npy"), embeddings)
+                    elif subsetname == 'dysarthria':
+                        np.save(os.path.join(os.path.join(self.params['target_dir'], self.params['dvectors_path_original_dysarthria']), str(speaker_name) + ".npy"), embeddings)
+                    elif subsetname == 'dysglossia':
+                        np.save(os.path.join(os.path.join(self.params['target_dir'], self.params['dvectors_path_original_dysglossia']), str(speaker_name) + ".npy"), embeddings)
 
 
     # below needed
-    def EER_newmethod_epochy(self, cfg_path, M=8, epochs=100):
+    def EER_newmethod_epochy(self, cfg_path, M=8, epochs=100, subsetname='dysphonia'):
         """
         evaluation (enrolment + verification)
         Open-set
@@ -187,7 +198,7 @@ class Prediction:
         final_eer = []
 
         for _ in tqdm(range(epochs)):
-            dvector_dataset = original_dvector_loader(cfg_path=cfg_path, M=M)
+            dvector_dataset = original_dvector_loader(cfg_path=cfg_path, M=M, subsetname=subsetname)
             dvector_loader = dvector_dataset.provide_test_original()
             assert M % 2 == 0
             enrollment_embeddings, verification_embeddings = torch.split(dvector_loader, int(dvector_loader.size(1) // 2), dim=1)
@@ -234,7 +245,7 @@ class Prediction:
 
 
     # below needed
-    def EER_newmethod_epochy_anonymized(self, cfg_path, M=8, epochs=100):
+    def EER_newmethod_epochy_anonymized(self, cfg_path, M=8, epochs=100, subsetname='dysphonia'):
         """
         evaluation (enrolment + verification)
         Open-set
@@ -243,7 +254,7 @@ class Prediction:
         final_eer = []
 
         for _ in tqdm(range(epochs)):
-            dvector_dataset = anonymized_dvector_loader(cfg_path=cfg_path, M=M)
+            dvector_dataset = anonymized_dvector_loader(cfg_path=cfg_path, M=M, subsetname=subsetname)
             anonymized_embeddings, original_embeddings = dvector_dataset.provide_test_anonymized_and_original()
 
             # Split the original embeddings into enrollment and verification sets

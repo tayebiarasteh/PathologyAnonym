@@ -34,6 +34,13 @@ dvectors_path_original: dvectors_original/
 checkpoint_name: checkpoint.tar
 trained_model_name: trained_model.pth
 
+dvectors_path_anony_dysarthria: dvectors_anony_dysarthria/
+dvectors_path_anony_dysglossia: dvectors_anony_dysglossia/
+dvectors_path_anony_dysphonia: dvectors_anony_dysphonia/
+dvectors_path_original_dysarthria: dvectors_original_dysarthria/
+dvectors_path_original_dysglossia: dvectors_original_dysglossia/
+dvectors_path_original_dysphonia: dvectors_original_dysphonia/
+
 # changeable items:
 file_path: /home/soroosh/Documents/datasets/anonymization/
 target_dir: /home/soroosh/Documents/Repositories_target_files/PathologyAnonym/mcAdams_Anonym/

@@ -86,7 +86,7 @@ class loader_for_dvector_creation:
         return speakers
 
 
-    def provide_data_anonymized(self, anonym_utter_dirname='PEAKS_random05_mcadams_anonymized'):
+    def provide_data_anonymized(self, anonym_utter_dirname='05'):
         """
         Returns
         -------
@@ -105,7 +105,7 @@ class loader_for_dvector_creation:
 
             for index, row in selected_speaker_df.iterrows():
                 path = os.path.join(self.file_path, row['relative_path'])
-                path_anonymized = path.replace('/PEAKS', '/' + anonym_utter_dirname)
+                path_anonymized = path.replace('/PEAKS', '/PEAKS_' + anonym_utter_dirname + '_mcadams_anonymized')
                 # path_anonymized = path.replace('/PEAKS', '/PEAKS_random_mcadams_anonymized')
                 try:
                     utter, sr = sf.read(path_anonymized)
@@ -355,17 +355,20 @@ class anonymizer_loader:
             selected_speaker_df = self.main_df[self.main_df['speaker_id'] == speaker_name]
 
             for index, row in selected_speaker_df.iterrows():
-                original_path = os.path.join(self.file_path, row['relative_path'])
+                row_relativepath = row['relative_path'].replace('.npy', '.wav')
+                row_relativepath = row_relativepath.replace('tisv_preprocess/dysarthria_70_30_contentmel/PEAKS', 'PEAKS')
+                row_relativepath = row_relativepath.replace('tisv_preprocess/dysglossia_70_30_contentmel/PEAKS', 'PEAKS')
+                row_relativepath = row_relativepath.replace('tisv_preprocess/dysphonia_70_30_contentmel/PEAKS', 'PEAKS')
+                row_relativepath = row_relativepath.replace('tisv_preprocess/CLP_70_30_contentmel/PEAKS', 'PEAKS')
+                original_path = os.path.join(self.file_path, row_relativepath)
+                # original_path = os.path.join(self.file_path, row['relative_path'])
+
                 utterance, sr = sf.read(original_path)
                 os.makedirs(os.path.dirname(original_path.replace('/PEAKS', '/' + output_utter_dirname)), exist_ok=True)
                 output_path = original_path.replace('/PEAKS', '/' + output_utter_dirname)
 
                 self.single_anonymize(utterance=utterance, sr=sr, output_path=output_path, mcadams=mcadams_coef)
                 # self.single_anonymize(utterance=utterance, sr=sr, output_path=output_path)
-
-
-
-
 
 
 
@@ -394,34 +397,6 @@ class anonymizer_loader:
         mel_spec = np.log(np.clip(D_mel, 1e-5, float('inf'))).astype(np.float32)
 
         return mel_spec
-
-
-    def provide_data_anonymized(self):
-        """
-        Returns
-        -------
-        speakers: dictionary of list
-            a dictionary of all the speakers. Each speaker contains a list of
-            all its utterances converted to mel spectrograms
-        """
-        # dictionary of speakers
-        speakers = {}
-
-        for speaker_name in tqdm(self.speaker_list):
-            selected_speaker_df = self.main_df[self.main_df['speaker_id'] == speaker_name]
-            # list of utterances of each speaker
-            utterances = []
-
-            for index, row in selected_speaker_df.iterrows():
-                path = os.path.join(self.file_path, row['relative_path'])
-                path_anonymized = path.replace('/PEAKS', '/PEAKS_mcadams_anonymized')
-                utter, sr = sf.read(path_anonymized)
-                utterance = self.tisv_preproc(utter)
-                utterance = torch.from_numpy(np.transpose(utterance, axes=(1, 0)))
-                utterances.append(utterance)
-            speakers[speaker_name] = utterances
-
-        return speakers
 
 
     def tisv_preproc(self, utter):
@@ -516,7 +491,7 @@ class anonymizer_loader:
 
 
 class original_dvector_loader:
-    def __init__(self, cfg_path='./configs/config.json', M=8):
+    def __init__(self, cfg_path='./configs/config.json', M=8, subsetname='dysphonia'):
         """For thresholding and testing.
 
         Parameters
@@ -535,7 +510,13 @@ class original_dvector_loader:
             return shape: (# all speakers, M, embedding size)
         """
         params = read_config(cfg_path)
-        self.speaker_list = glob.glob(os.path.join(params['target_dir'], params['dvectors_path_original'], "*.npy"))
+        if subsetname == 'dysphonia':
+            self.speaker_list = glob.glob(os.path.join(params['target_dir'], params['dvectors_path_original_dysphonia'], "*.npy"))
+        elif subsetname == 'dysarthria':
+            self.speaker_list = glob.glob(os.path.join(params['target_dir'], params['dvectors_path_original_dysarthria'], "*.npy"))
+        elif subsetname == 'dysglossia':
+            self.speaker_list = glob.glob(os.path.join(params['target_dir'], params['dvectors_path_original_dysglossia'], "*.npy"))
+
         self.M = M
 
 
@@ -549,8 +530,13 @@ class original_dvector_loader:
             # randomly sample a fixed specified length
             if embedding.shape[0] == self.M:
                 id = np.array([0])
-            else:
+            elif embedding.shape[0] > self.M:
                 id = np.random.randint(0, embedding.shape[0] - self.M, 1)
+            else:
+                diff = self.M - embedding.shape[0]
+                id = np.array([0])
+                embedding = np.vstack((embedding, embedding[0:diff]))
+
             embedding = embedding[id[0]:id[0] + self.M]
             output_tensor.append(embedding)
         output_tensor = np.stack(output_tensor)
@@ -561,7 +547,7 @@ class original_dvector_loader:
 
 
 class anonymized_dvector_loader:
-    def __init__(self, cfg_path='./configs/config.json', M=8):
+    def __init__(self, cfg_path='./configs/config.json', M=8, subsetname='dysphonia'):
         """For d-vector calculation.
 
         Parameters
@@ -580,8 +566,18 @@ class anonymized_dvector_loader:
             return shape: (# all speakers, M, embedding size)
         """
         params = read_config(cfg_path)
-        self.speaker_list_anonymized = glob.glob(os.path.join(params['target_dir'], params['dvectors_path_anonymized'], "*.npy"))
-        self.speaker_list_original = glob.glob(os.path.join(params['target_dir'], params['dvectors_path_original'], "*.npy"))
+        if subsetname == 'dysphonia':
+            self.speaker_list_original = glob.glob(os.path.join(params['target_dir'], params['dvectors_path_original_dysphonia'], "*.npy"))
+            self.speaker_list_anonymized = glob.glob(os.path.join(params['target_dir'], params['dvectors_path_anony_dysphonia'], "*.npy"))
+
+        elif subsetname == 'dysarthria':
+            self.speaker_list_original = glob.glob(os.path.join(params['target_dir'], params['dvectors_path_original_dysarthria'], "*.npy"))
+            self.speaker_list_anonymized = glob.glob(os.path.join(params['target_dir'], params['dvectors_path_anony_dysarthria'], "*.npy"))
+
+        elif subsetname == 'dysglossia':
+            self.speaker_list_original = glob.glob(os.path.join(params['target_dir'], params['dvectors_path_original_dysglossia'], "*.npy"))
+            self.speaker_list_anonymized = glob.glob(os.path.join(params['target_dir'], params['dvectors_path_anony_dysglossia'], "*.npy"))
+
         self.M = M
         self.speaker_list_anonymized.sort()
         self.speaker_list_original.sort()
@@ -605,6 +601,7 @@ class anonymized_dvector_loader:
                 diff = self.M - embedding.shape[0]
                 id = np.array([0])
                 embedding = np.vstack((embedding, embedding[0:diff]))
+
             embedding = embedding[id[0]:id[0] + self.M]
             output_tensor_anonymized.append(embedding)
         output_tensor_anonymized = np.stack(output_tensor_anonymized)
