@@ -4,3 +4,5 @@
 /.idea/*
 /Pitch_Anonym/.idea/.gitignore
 /mcAdams_Anonym/.idea/.gitignore
+/Pitch_Anonym/tmpdir/generator.ckpt
+/Pitch_Anonym/tmpdir/hyperparams.yaml
