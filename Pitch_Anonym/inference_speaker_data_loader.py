@@ -240,12 +240,54 @@ class anonymizer_loader:
         self.file_path = self.params['file_path']
         self.nmels = nmels
         self.setup_cuda()
-        self.main_df = pd.read_csv(os.path.join(self.params['file_path'], "PathologAnonym_project/data_master_list_PEAKS.csv"), sep=';')
+        self.main_df = pd.read_csv(os.path.join(self.params['file_path'], "PathologAnonym_project/all_70_30_contentmel.csv"), sep=';')
+        # self.main_df = pd.read_csv(os.path.join(self.params['file_path'], "PathologAnonym_project/masterlist_org.csv"), sep=';')
+
+        # self.main_df = self.main_df[self.main_df['subset'] == 'children']
+        self.main_df = self.main_df[self.main_df['subset'] == 'adults']
+        self.main_df = self.main_df[self.main_df['automatic_WRR'] > 0]
+        self.main_df = self.main_df[self.main_df['age_y'] > 0]
+
 
         # criteria for choosing a subset of df
 
 
 
+
+    def do_anonymize_nopitch(self):
+        """
+        """
+        hifi_gan = HIFIGAN.from_hparams(source="speechbrain/tts-hifigan-libritts-16kHz", savedir="tmpdir")
+        hifi_gan = hifi_gan.to(self.device)
+
+        self.speaker_list = self.main_df['speaker_id'].unique().tolist()
+        for speaker_name in tqdm(self.speaker_list):
+
+            selected_speaker_df = self.main_df[self.main_df['speaker_id'] == speaker_name]
+
+            for index, row in selected_speaker_df.iterrows():
+
+                row_relativepath = row['relative_path'].replace('.npy', '.wav')
+                row_relativepath = row_relativepath.replace('tisv_preprocess/dysarthria_70_30_contentmel/PEAKS', 'PEAKS')
+                row_relativepath = row_relativepath.replace('tisv_preprocess/dysglossia_70_30_contentmel/PEAKS', 'PEAKS')
+                row_relativepath = row_relativepath.replace('tisv_preprocess/dysphonia_70_30_contentmel/PEAKS', 'PEAKS')
+                row_relativepath = row_relativepath.replace('tisv_preprocess/CLP_70_30_contentmel/PEAKS', 'PEAKS')
+
+                original_path = os.path.join(self.file_path, row_relativepath)
+                utterance, sr = sf.read(original_path)
+
+                x_mel = self.get_mel_preproc(utterance)
+                x_mel = x_mel.transpose(1,0)
+
+                x_mel = torch.from_numpy(x_mel)
+                x_mel = x_mel.float()
+                x_mel = x_mel.unsqueeze(0)
+
+                x_d2 = hifi_gan.decode_batch(x_mel.to(self.device)) # torch.Size([1, 80, 605])
+                source_audio_reconstruced = x_d2.detach().cpu().numpy()[0,0]
+
+                os.makedirs(os.path.dirname(original_path.replace('/PEAKS', '/PEAKS_onlyGAN_anonymized')), exist_ok=True)
+                write(original_path.replace('/PEAKS', '/PEAKS_onlyGAN_anonymized'), 16000, source_audio_reconstruced)
 
 
 
@@ -285,7 +327,15 @@ class anonymizer_loader:
                         pitch_shift = random.uniform(0.8, 1.2)
 
             for index, row in selected_speaker_df.iterrows():
-                original_path = os.path.join(self.file_path, row['relative_path'])
+                row_relativepath = row['relative_path'].replace('.npy', '.wav')
+                row_relativepath = row_relativepath.replace('tisv_preprocess/dysarthria_70_30_contentmel/PEAKS', 'PEAKS')
+                row_relativepath = row_relativepath.replace('tisv_preprocess/dysglossia_70_30_contentmel/PEAKS', 'PEAKS')
+                row_relativepath = row_relativepath.replace('tisv_preprocess/dysphonia_70_30_contentmel/PEAKS', 'PEAKS')
+                row_relativepath = row_relativepath.replace('tisv_preprocess/CLP_70_30_contentmel/PEAKS', 'PEAKS')
+
+                original_path = os.path.join(self.file_path, row_relativepath)
+
+                # original_path = os.path.join(self.file_path, row['relative_path'])
                 utterance, sr = sf.read(original_path)
 
                 x_mel = self.get_mel_preproc(utterance)
