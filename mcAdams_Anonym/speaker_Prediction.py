@@ -178,6 +178,8 @@ class Prediction:
                         np.save(os.path.join(os.path.join(self.params['target_dir'], self.params['dvectors_path_anony_dysarthria']), str(speaker_name) + ".npy"), embeddings)
                     elif subsetname == 'dysglossia':
                         np.save(os.path.join(os.path.join(self.params['target_dir'], self.params['dvectors_path_anony_dysglossia']), str(speaker_name) + ".npy"), embeddings)
+                    elif subsetname == 'CLP':
+                        np.save(os.path.join(os.path.join(self.params['target_dir'], self.params['dvectors_path_anony_CLP']), str(speaker_name) + ".npy"), embeddings)
 
                 else:
                     if subsetname == 'dysphonia':
@@ -186,6 +188,8 @@ class Prediction:
                         np.save(os.path.join(os.path.join(self.params['target_dir'], self.params['dvectors_path_original_dysarthria']), str(speaker_name) + ".npy"), embeddings)
                     elif subsetname == 'dysglossia':
                         np.save(os.path.join(os.path.join(self.params['target_dir'], self.params['dvectors_path_original_dysglossia']), str(speaker_name) + ".npy"), embeddings)
+                    elif subsetname == 'CLP':
+                        np.save(os.path.join(os.path.join(self.params['target_dir'], self.params['dvectors_path_original_CLP']), str(speaker_name) + ".npy"), embeddings)
 
 
     # below needed

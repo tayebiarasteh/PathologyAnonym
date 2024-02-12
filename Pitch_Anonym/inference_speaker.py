@@ -35,7 +35,8 @@ def anonymization_process_e2e(global_config_path="/home/soroosh/Documents/Reposi
     data_handler_anonymizer = anonymizer_loader(cfg_path=global_config_path, nmels=40)
 
 
-    data_handler_anonymizer.do_anonymize()
+    data_handler_anonymizer.do_anonymize_nopitch()
+    # data_handler_anonymizer.do_anonymize()
     print('anonymization done!')
 
 
@@ -170,12 +171,12 @@ def direct_clssical_EER_calculation_e2e(global_config_path="/home/soroosh/Docume
 
 if __name__ == '__main__':
 
-    # anonymization_process_e2e(global_config_path="/home/arasteh/Documents/Repositories/PathologyAnonym/Pitch_Anonym/config/config.yaml")
+    anonymization_process_e2e(global_config_path="/home/soroosh/Documents/Repositories/PathologyAnonym/Pitch_Anonym/config/config.yaml")
 
     # direct_clssical_EER_calculation_e2e(global_config_path="/home/arasteh/Documents/Repositories/PathologyAnonym/Pitch_Anonym/config/config.yaml",
     #                    experiment_name='baseline_speaker_model', epochs=10, M=8, spk_nmels=40)
-    anonymized_EER_calculation_e2e(global_config_path="/home/arasteh/Documents/Repositories/PathologyAnonym/Pitch_Anonym/config/config.yaml",
-                       experiment_name='baseline_speaker_model', epochs=10, M=8, spk_nmels=40)
+    # anonymized_EER_calculation_e2e(global_config_path="/home/arasteh/Documents/Repositories/PathologyAnonym/Pitch_Anonym/config/config.yaml",
+    #                    experiment_name='baseline_speaker_model', epochs=10, M=8, spk_nmels=40)
 
     # direct_clssical_EER_calculation_e2e(global_config_path="/home/arasteh/Documents/Repositories/PathologyAnonym/Pitch_Anonym/config/config.yaml",
     #                    experiment_name='baseline_speaker_model_librispeech', epochs=10, M=8, spk_nmels=40)

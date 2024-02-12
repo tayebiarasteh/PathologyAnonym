@@ -77,7 +77,15 @@ class loader_for_dvector_creation:
             utterances = []
 
             for index, row in selected_speaker_df.iterrows():
-                utter, sr = sf.read(os.path.join(self.file_path, row['relative_path']))
+
+                row_relativepath = row['relative_path'].replace('.npy', '.wav')
+                row_relativepath = row_relativepath.replace('tisv_preprocess/dysarthria_70_30_contentmel/PEAKS', 'PEAKS')
+                row_relativepath = row_relativepath.replace('tisv_preprocess/dysglossia_70_30_contentmel/PEAKS', 'PEAKS')
+                row_relativepath = row_relativepath.replace('tisv_preprocess/dysphonia_70_30_contentmel/PEAKS', 'PEAKS')
+                row_relativepath = row_relativepath.replace('tisv_preprocess/CLP_70_30_contentmel/PEAKS', 'PEAKS')
+
+
+                utter, sr = sf.read(os.path.join(self.file_path, row_relativepath))
                 utterance = self.tisv_preproc(utter)
                 utterance = torch.from_numpy(np.transpose(utterance, axes=(1, 0)))
                 utterances.append(utterance)
@@ -104,9 +112,18 @@ class loader_for_dvector_creation:
             utterances = []
 
             for index, row in selected_speaker_df.iterrows():
-                path = os.path.join(self.file_path, row['relative_path'])
+
+                row_relativepath = row['relative_path'].replace('.npy', '.wav')
+                row_relativepath = row_relativepath.replace('tisv_preprocess/dysarthria_70_30_contentmel/PEAKS', 'PEAKS')
+                row_relativepath = row_relativepath.replace('tisv_preprocess/dysglossia_70_30_contentmel/PEAKS', 'PEAKS')
+                row_relativepath = row_relativepath.replace('tisv_preprocess/dysphonia_70_30_contentmel/PEAKS', 'PEAKS')
+                row_relativepath = row_relativepath.replace('tisv_preprocess/CLP_70_30_contentmel/PEAKS', 'PEAKS')
+
+                path = os.path.join(self.file_path, row_relativepath)
                 path_anonymized = path.replace('/PEAKS', '/PEAKS_' + anonym_utter_dirname + '_mcadams_anonymized')
+                # path_anonymized = path.replace('/PEAKS', '/PEAKS_onlyGAN_anonymized')
                 # path_anonymized = path.replace('/PEAKS', '/PEAKS_random_mcadams_anonymized')
+                # path_anonymized = path.replace('/PEAKS', '/PEAKS_anonymized')
                 try:
                     utter, sr = sf.read(path_anonymized)
                 except:
@@ -246,8 +263,8 @@ class anonymizer_loader:
         self.main_df = pd.read_csv(os.path.join(self.params['file_path'], "PathologAnonym_project/all_70_30_contentmel.csv"), sep=';')
         # self.main_df = pd.read_csv(os.path.join(self.params['file_path'], "PathologAnonym_project/masterlist_org.csv"), sep=';')
 
-        # self.main_df = self.main_df[self.main_df['subset'] == 'children']
-        self.main_df = self.main_df[self.main_df['subset'] == 'adults']
+        self.main_df = self.main_df[self.main_df['subset'] == 'children']
+        # self.main_df = self.main_df[self.main_df['subset'] == 'adults']
         self.main_df = self.main_df[self.main_df['automatic_WRR'] > 0]
         self.main_df = self.main_df[self.main_df['age_y'] > 0]
 
@@ -351,7 +368,7 @@ class anonymizer_loader:
         self.speaker_list = self.main_df['speaker_id'].unique().tolist()
         for speaker_name in tqdm(self.speaker_list):
 
-            # mcadams_coef = random.uniform(0.5, 0.9)
+            # mcadams_coef = random.uniform(0.75, 0.9)
             selected_speaker_df = self.main_df[self.main_df['speaker_id'] == speaker_name]
 
             for index, row in selected_speaker_df.iterrows():
@@ -368,7 +385,6 @@ class anonymizer_loader:
                 output_path = original_path.replace('/PEAKS', '/' + output_utter_dirname)
 
                 self.single_anonymize(utterance=utterance, sr=sr, output_path=output_path, mcadams=mcadams_coef)
-                # self.single_anonymize(utterance=utterance, sr=sr, output_path=output_path)
 
 
 
@@ -516,6 +532,8 @@ class original_dvector_loader:
             self.speaker_list = glob.glob(os.path.join(params['target_dir'], params['dvectors_path_original_dysarthria'], "*.npy"))
         elif subsetname == 'dysglossia':
             self.speaker_list = glob.glob(os.path.join(params['target_dir'], params['dvectors_path_original_dysglossia'], "*.npy"))
+        elif subsetname == 'CLP':
+            self.speaker_list = glob.glob(os.path.join(params['target_dir'], params['dvectors_path_original_CLP'], "*.npy"))
 
         self.M = M
 
@@ -577,6 +595,10 @@ class anonymized_dvector_loader:
         elif subsetname == 'dysglossia':
             self.speaker_list_original = glob.glob(os.path.join(params['target_dir'], params['dvectors_path_original_dysglossia'], "*.npy"))
             self.speaker_list_anonymized = glob.glob(os.path.join(params['target_dir'], params['dvectors_path_anony_dysglossia'], "*.npy"))
+
+        elif subsetname == 'CLP':
+            self.speaker_list_original = glob.glob(os.path.join(params['target_dir'], params['dvectors_path_original_CLP'], "*.npy"))
+            self.speaker_list_anonymized = glob.glob(os.path.join(params['target_dir'], params['dvectors_path_anony_CLP'], "*.npy"))
 
         self.M = M
         self.speaker_list_anonymized.sort()

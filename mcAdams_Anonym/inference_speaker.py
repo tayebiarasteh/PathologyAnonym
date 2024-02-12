@@ -41,7 +41,7 @@ def mcadams_anonymization_process_e2e(global_config_path="/home/soroosh/Document
 
 
 def anonymized_EER_calculation_e2e(global_config_path="/home/soroosh/Documents/Repositories/PathologyAnonym/mcAdams_Anonym/config/config.yaml",
-        experiment_name='baseline_speaker_model', epochs=1000, M=8, spk_nmels=40, anonym_utter_dirname='05', subsetname='dysphonia'):
+        experiment_name='baseline_speaker_model', epochs=1000, M=8, spk_nmels=40, anonym_utter_dirname='05', subsetname='dysphonia', subset='children'):
     """
 
     Parameters
@@ -67,7 +67,7 @@ def anonymized_EER_calculation_e2e(global_config_path="/home/soroosh/Documents/R
     print('preprocessing for d-vector creation....')
     data_handler = loader_for_dvector_creation(cfg_path=cfg_path, spk_nmels=spk_nmels)
 
-    data_handler.main_df = data_handler.main_df[data_handler.main_df['subset'] == 'adults']
+    data_handler.main_df = data_handler.main_df[data_handler.main_df['subset'] == subset]
 
     if subsetname == 'dysphonia':
         data_handler.main_df = data_handler.main_df[data_handler.main_df['mic_room'] == 'logitech']
@@ -108,7 +108,7 @@ def anonymized_EER_calculation_e2e(global_config_path="/home/soroosh/Documents/R
 
 
 def direct_clssical_EER_calculation_e2e(global_config_path="/home/soroosh/Documents/Repositories/PathologyAnonym/mcAdams_Anonym/config/config.yaml",
-                   experiment_name='baseline_speaker_model', epochs=1000, M=8, spk_nmels=40, subsetname='dysphonia'):
+                   experiment_name='baseline_speaker_model', epochs=1000, M=8, spk_nmels=40, subsetname='dysphonia', subset='children'):
     """Main function for creating d-vectors & testing, for different models based on epochs
     Purpose here is validation of the model
 
@@ -138,7 +138,7 @@ def direct_clssical_EER_calculation_e2e(global_config_path="/home/soroosh/Docume
     print('preprocessing for d-vector creation....')
     data_handler = loader_for_dvector_creation(cfg_path=cfg_path, spk_nmels=spk_nmels)
 
-    data_handler.main_df = data_handler.main_df[data_handler.main_df['subset'] == 'adults']
+    data_handler.main_df = data_handler.main_df[data_handler.main_df['subset'] == subset]
 
     if subsetname == 'dysphonia':
         data_handler.main_df = data_handler.main_df[data_handler.main_df['mic_room'] == 'logitech']
@@ -222,7 +222,7 @@ if __name__ == '__main__':
     for idx in ['05', '06', '07', '08', '09', '10', '11']:
         anonymized_EER_calculation_e2e(global_config_path="/home/soroosh/Documents/Repositories/PathologyAnonym/mcAdams_Anonym/config/config.yaml",
             experiment_name='baseline_speaker_model', epochs=10, M=8, spk_nmels=40, anonym_utter_dirname=idx,
-            subsetname='dysarthria')
+            subsetname='dysarthria', subset='adults')
 
     ##############################################################################
 
@@ -233,7 +233,7 @@ if __name__ == '__main__':
     for idx in ['05', '06', '07', '08', '09', '10', '11']:
         anonymized_EER_calculation_e2e(global_config_path="/home/soroosh/Documents/Repositories/PathologyAnonym/mcAdams_Anonym/config/config.yaml",
             experiment_name='baseline_speaker_model', epochs=10, M=8, spk_nmels=40, anonym_utter_dirname=idx,
-            subsetname='dysglossia')
+            subsetname='dysglossia', subset='adults')
 
     ##############################################################################
 
@@ -244,7 +244,7 @@ if __name__ == '__main__':
     for idx in ['05', '06', '07', '08', '09', '10', '11']:
         anonymized_EER_calculation_e2e(global_config_path="/home/soroosh/Documents/Repositories/PathologyAnonym/mcAdams_Anonym/config/config.yaml",
             experiment_name='baseline_speaker_model', epochs=10, M=8, spk_nmels=40, anonym_utter_dirname=idx,
-            subsetname='dysphonia')
+            subsetname='dysphonia', subset='adults')
 
     ##############################################################################
 
