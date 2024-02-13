@@ -6,6 +6,7 @@ Created on Feb 12, 2024.
 https://github.com/tayebiarasteh/
 """
 import pandas as pd
+import pdb
 
 
 
@@ -18,13 +19,10 @@ warnings.filterwarnings('ignore')
 
 # Load the dataset
 data_path = '/home/soroosh/Documents/datasets/anonymization/PathologAnonym_project/masterlist_org.csv'
-adults_data = pd.read_csv(data_path, delimiter=';')
+data = pd.read_csv(data_path, delimiter=';')
 
 # Filter dataset for adults only
-adults_data = adults_data[adults_data['subset'] == 'adults']
-# adults_data = adults_data[adults_data['subset'] == 'children']
-adults_data = adults_data[adults_data['patient_control'] == 'patient']
-adults_data = adults_data[adults_data['mic_room'] == 'plantronics']
+adults_data = data[data['subset'] == 'adults']
 
 # Total number of speakers
 total_speakers_adults = adults_data['speaker_id'].nunique()

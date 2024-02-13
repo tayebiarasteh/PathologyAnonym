@@ -91,6 +91,11 @@ def eer():
     yerr = np.array([0.55, 0.25, 0.63, 0.41, 0.52, 0.57])
     ref_auroc = 2.19
 
+    # # CLP
+    y = np.array([48.90 , 42.06, 40.22 , 34.55, 22.83, 12.08])
+    yerr = np.array([0.44, 0.24, 0.41, 0.18, 0.41, 0.31])
+    ref_auroc = 7.01
+
     # Creating the plot
     plt.figure(figsize=(10, 8))
 
@@ -127,5 +132,5 @@ def eer():
 
 
 if __name__ == '__main__':
-    auroc()
-    # eer()
+    # auroc()
+    eer()
