@@ -29,14 +29,19 @@ def auroc():
     ref_auroc = 97.33
 
     # dysglossia
-    # y = np.array([98.62, 97.69, 98.68, 97.55, 98.12, 98.52])
-    # yerr = np.array([0.25, 0.44, 0.23, 0.28, 0.31, 0.24])
-    # ref_auroc = 97.73
+    y = np.array([98.62, 97.69, 98.68, 97.55, 98.12, 98.52])
+    yerr = np.array([0.25, 0.44, 0.23, 0.28, 0.31, 0.24])
+    ref_auroc = 97.73
 
     # dysphonia
-    # y = np.array([96.60, 98.02, 97.62, 97.71, 98.63, 96.19])
-    # yerr = np.array([0.64, 0.51, 0.47, 0.57, 0.35, 0.59])
-    # ref_auroc = 99.12
+    y = np.array([96.60, 98.02, 97.62, 97.71, 98.63, 96.19])
+    yerr = np.array([0.64, 0.51, 0.47, 0.57, 0.35, 0.59])
+    ref_auroc = 99.12
+
+    # CLP
+    y = np.array([96.04, 94.07, 97.56, 98.62, 97.48, 97.15])
+    yerr = np.array([0.29, 0.29, 0.20, 0.12, 0.19, 0.17])
+    ref_auroc = 96.44
 
     # Creating the plot
     plt.figure(figsize=(10, 8))
@@ -132,5 +137,5 @@ def eer():
 
 
 if __name__ == '__main__':
-    # auroc()
-    eer()
+    auroc()
+    # eer()
