@@ -241,7 +241,6 @@ class anonymizer_loader:
         self.nmels = nmels
         self.setup_cuda()
         self.main_df = pd.read_csv(os.path.join(self.params['file_path'], "PathologAnonym_project/all_70_30_contentmel.csv"), sep=';')
-        # self.main_df = pd.read_csv(os.path.join(self.params['file_path'], "PathologAnonym_project/masterlist_org.csv"), sep=';')
 
         # self.main_df = self.main_df[self.main_df['subset'] == 'children']
         self.main_df = self.main_df[self.main_df['subset'] == 'adults']

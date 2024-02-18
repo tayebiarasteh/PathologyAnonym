@@ -22,13 +22,13 @@ warnings.filterwarnings('ignore')
 
 
 
-def anonymization_process_e2e(global_config_path="/home/soroosh/Documents/Repositories/PathologyAnonym/Pitch_Anonym/config/config.yaml"):
+def anonymization_process_e2e(global_config_path="/PATH/PathologyAnonym/Pitch_Anonym/config/config.yaml"):
     """
 
     Parameters
     ----------
     global_config_path: str
-        always global_config_path="/home/soroosh/Documents/Repositories/PathologyAnonym/Pitch_Anonym/config/config.yaml"
+        always global_config_path="/PATH/PathologyAnonym/Pitch_Anonym/config/config.yaml"
     """
     print('\nanonymizing all utteraces of each speaker in the same way....')
     print('loop over speakers....')
@@ -41,14 +41,14 @@ def anonymization_process_e2e(global_config_path="/home/soroosh/Documents/Reposi
 
 
 
-def anonymized_EER_calculation_e2e(global_config_path="/home/soroosh/Documents/Repositories/PathologyAnonym/Pitch_Anonym/config/config.yaml",
+def anonymized_EER_calculation_e2e(global_config_path="/PATH/PathologyAnonym/Pitch_Anonym/config/config.yaml",
         experiment_name='baseline_speaker_model', epochs=1000, M=8, spk_nmels=40):
     """
 
     Parameters
     ----------
     global_config_path: str
-        always global_config_path="/home/soroosh/Documents/Repositories/PathologyAnonym/Pitch_Anonym/config/config.yaml"
+        always global_config_path="/PATH/PathologyAnonym/Pitch_Anonym/config/config.yaml"
 
     epochs: int
         total number of epochs to do the evaluation process.
@@ -72,10 +72,6 @@ def anonymized_EER_calculation_e2e(global_config_path="/home/soroosh/Documents/R
     # criteria for choosing a subset of df
     data_handler.main_df = data_handler.main_df[data_handler.main_df['subset'] == 'children']
     data_handler.main_df = data_handler.main_df[data_handler.main_df['patient_control'] == 'patient']
-    # data_handler.main_df = data_handler.main_df[data_handler.main_df['microphone'] == 'dnt']
-    # data_handler.main_df = data_handler.main_df[data_handler.main_df['microphone'] == 'Plantronics']
-    # data_handler.main_df = data_handler.main_df[data_handler.main_df['microphone'] == 'Logitech']
-    # data_handler.main_df = data_handler.main_df[data_handler.main_df['microphone'] == 'Mixed']
 
     data_loader = data_handler.provide_data_anonymized()
     print('preprocessing done!')
@@ -103,7 +99,7 @@ def anonymized_EER_calculation_e2e(global_config_path="/home/soroosh/Documents/R
 
 
 
-def direct_clssical_EER_calculation_e2e(global_config_path="/home/soroosh/Documents/Repositories/PathologyAnonym/Pitch_Anonym/config/config.yaml",
+def direct_clssical_EER_calculation_e2e(global_config_path="/PATH/PathologyAnonym/Pitch_Anonym/config/config.yaml",
                    experiment_name='baseline_speaker_model', epochs=1000, M=8, spk_nmels=40):
     """Main function for creating d-vectors & testing, for different models based on epochs
     Purpose here is validation of the model
@@ -111,7 +107,7 @@ def direct_clssical_EER_calculation_e2e(global_config_path="/home/soroosh/Docume
     Parameters
     ----------
     global_config_path: str
-        always global_config_path="/home/soroosh/Documents/Repositories/PathologyAnonym/Pitch_Anonym/config/config.yaml"
+        always global_config_path="/PATH/PathologyAnonym/Pitch_Anonym/config/config.yaml"
 
     experiment_name: str
         name of the experiment, in case of resuming training.
@@ -137,10 +133,6 @@ def direct_clssical_EER_calculation_e2e(global_config_path="/home/soroosh/Docume
     # criteria for choosing a subset of df
     data_handler.main_df = data_handler.main_df[data_handler.main_df['subset'] == 'children']
     data_handler.main_df = data_handler.main_df[data_handler.main_df['patient_control'] == 'patient']
-    # data_handler.main_df = data_handler.main_df[data_handler.main_df['microphone'] == 'dnt']
-    # data_handler.main_df = data_handler.main_df[data_handler.main_df['microphone'] == 'Plantronics']
-    # data_handler.main_df = data_handler.main_df[data_handler.main_df['microphone'] == 'Logitech']
-    # data_handler.main_df = data_handler.main_df[data_handler.main_df['microphone'] == 'Mixed']
 
     data_loader = data_handler.provide_data_original()
     print('preprocessing done!')
@@ -171,14 +163,5 @@ def direct_clssical_EER_calculation_e2e(global_config_path="/home/soroosh/Docume
 
 if __name__ == '__main__':
 
-    anonymization_process_e2e(global_config_path="/home/soroosh/Documents/Repositories/PathologyAnonym/Pitch_Anonym/config/config.yaml")
+    anonymization_process_e2e(global_config_path="/PATH/PathologyAnonym/Pitch_Anonym/config/config.yaml")
 
-    # direct_clssical_EER_calculation_e2e(global_config_path="/home/arasteh/Documents/Repositories/PathologyAnonym/Pitch_Anonym/config/config.yaml",
-    #                    experiment_name='baseline_speaker_model', epochs=10, M=8, spk_nmels=40)
-    # anonymized_EER_calculation_e2e(global_config_path="/home/arasteh/Documents/Repositories/PathologyAnonym/Pitch_Anonym/config/config.yaml",
-    #                    experiment_name='baseline_speaker_model', epochs=10, M=8, spk_nmels=40)
-
-    # direct_clssical_EER_calculation_e2e(global_config_path="/home/arasteh/Documents/Repositories/PathologyAnonym/Pitch_Anonym/config/config.yaml",
-    #                    experiment_name='baseline_speaker_model_librispeech', epochs=10, M=8, spk_nmels=40)
-    # anonymized_EER_calculation_e2e(global_config_path="/home/arasteh/Documents/Repositories/PathologyAnonym/Pitch_Anonym/config/config.yaml",
-    #                    experiment_name='baseline_speaker_model_librispeech', epochs=10, M=8, spk_nmels=40)
