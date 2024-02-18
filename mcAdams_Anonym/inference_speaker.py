@@ -22,14 +22,14 @@ warnings.filterwarnings('ignore')
 
 
 
-def mcadams_anonymization_process_e2e(global_config_path="/home/soroosh/Documents/Repositories/PathologyAnonym/mcAdams_Anonym/config/config.yaml",
+def mcadams_anonymization_process_e2e(global_config_path="/PATH/PathologyAnonym/mcAdams_Anonym/config/config.yaml",
                                       mcadams_coef=0.8, output_utter_dirname='PEAKS_random05_mcadams_anonymized'):
     """
 
     Parameters
     ----------
     global_config_path: str
-        always global_config_path="/home/soroosh/Documents/Repositories/PathologyAnonym/mcAdams_Anonym/config/config.yaml"
+        always global_config_path="/PATH/PathologyAnonym/mcAdams_Anonym/config/config.yaml"
     """
     print('\nanonymizing all utteraces of each speaker in the same way....')
     print('loop over speakers....')
@@ -40,14 +40,14 @@ def mcadams_anonymization_process_e2e(global_config_path="/home/soroosh/Document
 
 
 
-def anonymized_EER_calculation_e2e(global_config_path="/home/soroosh/Documents/Repositories/PathologyAnonym/mcAdams_Anonym/config/config.yaml",
+def anonymized_EER_calculation_e2e(global_config_path="/PATH/PathologyAnonym/mcAdams_Anonym/config/config.yaml",
         experiment_name='baseline_speaker_model', epochs=1000, M=8, spk_nmels=40, anonym_utter_dirname='05', subsetname='dysphonia', subset='children'):
     """
 
     Parameters
     ----------
     global_config_path: str
-        always global_config_path="/home/soroosh/Documents/Repositories/PathologyAnonym/Pitch_Anonym/config/config.yaml"
+        always global_config_path="/PATH/PathologyAnonym/Pitch_Anonym/config/config.yaml"
 
     epochs: int
         total number of epochs to do the evaluation process.
@@ -107,7 +107,7 @@ def anonymized_EER_calculation_e2e(global_config_path="/home/soroosh/Documents/R
 
 
 
-def direct_clssical_EER_calculation_e2e(global_config_path="/home/soroosh/Documents/Repositories/PathologyAnonym/mcAdams_Anonym/config/config.yaml",
+def direct_clssical_EER_calculation_e2e(global_config_path="/PATH/PathologyAnonym/mcAdams_Anonym/config/config.yaml",
                    experiment_name='baseline_speaker_model', epochs=1000, M=8, spk_nmels=40, subsetname='dysphonia', subset='children'):
     """Main function for creating d-vectors & testing, for different models based on epochs
     Purpose here is validation of the model
@@ -115,7 +115,7 @@ def direct_clssical_EER_calculation_e2e(global_config_path="/home/soroosh/Docume
     Parameters
     ----------
     global_config_path: str
-        always global_config_path="/home/soroosh/Documents/Repositories/PathologyAnonym/Pitch_Anonym/config/config.yaml"
+        always global_config_path="/PATH/PathologyAnonym/Pitch_Anonym/config/config.yaml"
 
     experiment_name: str
         name of the experiment, in case of resuming training.
@@ -180,72 +180,7 @@ def direct_clssical_EER_calculation_e2e(global_config_path="/home/soroosh/Docume
 
 
 if __name__ == '__main__':
-    # mcadams_coef = random.uniform(0.5, 0.9)
-    mcadams_coef = 0.5
-    # mcadams_coef = 0.6
-    # mcadams_coef = 0.7
-    # mcadams_coef = 0.8
-    # mcadams_coef = 0.9
-    # mcadams_coef = 1.0
-    # mcadams_coef = 1.1
-
-    if np.abs(0.5 - mcadams_coef) < 0.0001:
-        output_utter_dirname = 'PEAKS_05_mcadams_anonymized'
-    elif np.abs(0.6 - mcadams_coef) < 0.0001:
-        output_utter_dirname = 'PEAKS_06_mcadams_anonymized'
-    elif np.abs(0.7 - mcadams_coef) < 0.0001:
-        output_utter_dirname = 'PEAKS_07_mcadams_anonymized'
-    elif np.abs(0.8 - mcadams_coef) < 0.0001:
-        output_utter_dirname = 'PEAKS_08_mcadams_anonymized'
-    elif np.abs(0.9 - mcadams_coef) < 0.0001:
-        output_utter_dirname = 'PEAKS_09_mcadams_anonymized'
-    elif np.abs(1.0 - mcadams_coef) < 0.0001:
-        output_utter_dirname = 'PEAKS_10_mcadams_anonymized'
-    elif np.abs(1.1 - mcadams_coef) < 0.0001:
-        output_utter_dirname = 'PEAKS_11_mcadams_anonymized'
-
-    print(output_utter_dirname)
-
-    # mcadams_anonymization_process_e2e(global_config_path="/home/soroosh/Documents/Repositories/PathologyAnonym/mcAdams_Anonym/config/config.yaml",
-    #                                   mcadams_coef=mcadams_coef, output_utter_dirname=output_utter_dirname)
-    #
-    # direct_clssical_EER_calculation_e2e(global_config_path="/home/soroosh/Documents/Repositories/PathologyAnonym/mcAdams_Anonym/config/config.yaml",
-    #                    experiment_name='baseline_speaker_model', epochs=10, M=8, spk_nmels=40, subsetname='dysphonia')
-    # anonymized_EER_calculation_e2e(global_config_path="/home/soroosh/Documents/Repositories/PathologyAnonym/mcAdams_Anonym/config/config.yaml",
-    #                    experiment_name='baseline_speaker_model', epochs=10, M=8, spk_nmels=40, anonym_utter_dirname=output_utter_dirname, subsetname='dysphonia')
-
-
 
     # dysarthria
-    direct_clssical_EER_calculation_e2e(global_config_path="/home/soroosh/Documents/Repositories/PathologyAnonym/mcAdams_Anonym/config/config.yaml",
+    direct_clssical_EER_calculation_e2e(global_config_path="/PATH/PathologyAnonym/mcAdams_Anonym/config/config.yaml",
                        experiment_name='baseline_speaker_model', epochs=10, M=8, spk_nmels=40, subsetname='dysarthria')
-    for idx in ['05', '06', '07', '08', '09', '10', '11']:
-        anonymized_EER_calculation_e2e(global_config_path="/home/soroosh/Documents/Repositories/PathologyAnonym/mcAdams_Anonym/config/config.yaml",
-            experiment_name='baseline_speaker_model', epochs=10, M=8, spk_nmels=40, anonym_utter_dirname=idx,
-            subsetname='dysarthria', subset='adults')
-
-    ##############################################################################
-
-
-    # dysglossia
-    direct_clssical_EER_calculation_e2e(global_config_path="/home/soroosh/Documents/Repositories/PathologyAnonym/mcAdams_Anonym/config/config.yaml",
-                       experiment_name='baseline_speaker_model', epochs=10, M=8, spk_nmels=40, subsetname='dysglossia')
-    for idx in ['05', '06', '07', '08', '09', '10', '11']:
-        anonymized_EER_calculation_e2e(global_config_path="/home/soroosh/Documents/Repositories/PathologyAnonym/mcAdams_Anonym/config/config.yaml",
-            experiment_name='baseline_speaker_model', epochs=10, M=8, spk_nmels=40, anonym_utter_dirname=idx,
-            subsetname='dysglossia', subset='adults')
-
-    ##############################################################################
-
-
-    # dysphonia
-    direct_clssical_EER_calculation_e2e(global_config_path="/home/soroosh/Documents/Repositories/PathologyAnonym/mcAdams_Anonym/config/config.yaml",
-                       experiment_name='baseline_speaker_model', epochs=10, M=8, spk_nmels=40, subsetname='dysphonia')
-    for idx in ['05', '06', '07', '08', '09', '10', '11']:
-        anonymized_EER_calculation_e2e(global_config_path="/home/soroosh/Documents/Repositories/PathologyAnonym/mcAdams_Anonym/config/config.yaml",
-            experiment_name='baseline_speaker_model', epochs=10, M=8, spk_nmels=40, anonym_utter_dirname=idx,
-            subsetname='dysphonia', subset='adults')
-
-    ##############################################################################
-
-

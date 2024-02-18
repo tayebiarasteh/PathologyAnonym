@@ -15,7 +15,7 @@ from config.serde import *
 import pdb
 
 
-CONFIG_PATH = "/home/soroosh/Documents/Repositories/PathologyAnonym/mcAdams_Anonym/config/config.yaml"
+CONFIG_PATH = "/PATH/PathologyAnonym/mcAdams_Anonym/config/config.yaml"
 params = read_config(CONFIG_PATH)
 
 

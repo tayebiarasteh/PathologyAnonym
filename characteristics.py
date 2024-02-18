@@ -18,7 +18,7 @@ warnings.filterwarnings('ignore')
 
 
 # Load the dataset
-data_path = '/home/soroosh/Documents/datasets/anonymization/PathologAnonym_project/masterlist_org.csv'
+data_path = '/PATH.csv'
 data = pd.read_csv(data_path, delimiter=';')
 
 # Filter dataset for adults only

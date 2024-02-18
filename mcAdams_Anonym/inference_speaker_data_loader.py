@@ -56,7 +56,6 @@ class loader_for_dvector_creation:
                          self.params['preprocessing']['window']) * self.params['preprocessing']['sr']
         self.nmels = spk_nmels
         self.main_df = pd.read_csv(os.path.join(self.params['file_path'], "PathologAnonym_project/all_70_30_contentmel.csv"), sep=';')
-        # self.main_df = pd.read_csv(os.path.join(self.params['file_path'], "PathologAnonym_project/masterlist_org.csv"), sep=';')
 
 
     def provide_data_original(self):
@@ -261,25 +260,11 @@ class anonymizer_loader:
         self.nmels = nmels
         self.setup_cuda()
         self.main_df = pd.read_csv(os.path.join(self.params['file_path'], "PathologAnonym_project/all_70_30_contentmel.csv"), sep=';')
-        # self.main_df = pd.read_csv(os.path.join(self.params['file_path'], "PathologAnonym_project/masterlist_org.csv"), sep=';')
 
         self.main_df = self.main_df[self.main_df['subset'] == 'children']
         # self.main_df = self.main_df[self.main_df['subset'] == 'adults']
         self.main_df = self.main_df[self.main_df['automatic_WRR'] > 0]
         self.main_df = self.main_df[self.main_df['age_y'] > 0]
-
-        # self.main_df = self.main_df[self.main_df['mic_room'] == 'plantronics'] # means all the dysarthria (must be combined with adults only)
-        # patient_df = selected_df[selected_df['mic_room'] == 'logitech'] # means all the dysphonia (must be combined with adults only)
-        # patient_df = selected_df[selected_df['mic_room'] == 'maxillofacial'] # means all the dysglossia (must be combined with adults only)
-        # self.main_df = self.main_df[self.main_df['patient_control'] == 'patient']
-
-
-        # self.main_df = self.main_df[self.main_df['subset'] == 'adults']
-        # #
-        # self.main_df = self.main_df[self.main_df['mic_room'] == 'logitech'] # all dysphonia
-        # self.main_df = self.main_df[self.main_df['mic_room'] == 'control_group_plantronics'] # all adult controls
-
-        # criteria for choosing a subset of df
 
 
 
