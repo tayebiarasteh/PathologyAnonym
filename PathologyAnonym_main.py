@@ -27,14 +27,14 @@ warnings.filterwarnings('ignore')
 
 
 
-def main_train_disorder_detection(global_config_path="/home/soroosh/Documents/Repositories/PathologyAnonym/config/config.yaml", valid=False,
+def main_train_disorder_detection(global_config_path="/PATH/PathologyAnonym/config/config.yaml", valid=False,
                   resume=False, experiment_name='name'):
     """Main function for training + validation centrally
 
         Parameters
         ----------
         global_config_path: str
-            always global_config_path="/home/soroosh/Documents/Repositories/PathologyAnonym/config/config.yaml"
+            always global_config_path="/PATH/PathologyAnonym/config/config.yaml"
 
         valid: bool
             if we want to do validation
@@ -67,9 +67,7 @@ def main_train_disorder_detection(global_config_path="/home/soroosh/Documents/Re
         valid_loader = None
 
 
-    # model = timm.create_model('resnet18', num_classes=2, pretrained=True)
     model = timm.create_model('resnet34', num_classes=2, pretrained=True)
-    # model = timm.create_model('resnet50', num_classes=2, pretrained=True)
 
     loss_function = nn.BCEWithLogitsLoss
 
@@ -87,14 +85,14 @@ def main_train_disorder_detection(global_config_path="/home/soroosh/Documents/Re
 
 
 
-def main_eval_test_disorder_detection(global_config_path="/home/soroosh/Documents/Repositories/PathologyAnonym/config/config.yaml",
+def main_eval_test_disorder_detection(global_config_path="/PATH/PathologyAnonym/config/config.yaml",
                    experiment_name='name', avg_epochs=10, model_epoch=50):
     """Main function for testing.
 
     Parameters
     ----------
     global_config_path: str
-        always global_config_path="/home/soroosh/Documents/Repositories/PathologyAnonym/config/config.yaml"
+        always global_config_path="/PATH/PathologyAnonym/config/config.yaml"
 
     """
     params = open_experiment(experiment_name, global_config_path)
@@ -141,9 +139,9 @@ def main_eval_test_disorder_detection(global_config_path="/home/soroosh/Document
 
 
 
-def pvalue_ttest(global_config_path="/home/soroosh/Documents/Repositories/PathologyAnonym/config/config.yaml", experiment_name='name',
-                 df1_path="/home/soroosh/Documents/Repositories_target_files/PathologyAnonym/CLP_70_30_contentmel/stat_log/test_results.csv",
-                   df2_path='/home/soroosh/Documents/Repositories_target_files/PathologyAnonym/CLP_70_30_contentmel_anonym/stat_log/test_results.csv'):
+def pvalue_ttest(global_config_path="/PATH/PathologyAnonym/config/config.yaml", experiment_name='name',
+                 df1_path="/PATH/stat_log/test_results.csv",
+                   df2_path='/PATH/stat_log/test_results.csv'):
 
     params = open_experiment(experiment_name, global_config_path)
 
@@ -188,29 +186,4 @@ def pvalue_ttest(global_config_path="/home/soroosh/Documents/Repositories/Pathol
 
     print(f'Results saved to {results_file_path}')
 
-
-
-
-
-
-
-
-
-
-
-if __name__ == '__main__':
-    cfg_path = "/home/soroosh/Documents/Repositories/PathologyAnonym/config/config.yaml"
-    # delete_experiment(experiment_name='dysarthria_70_30_contentmel_anonym', global_config_path=cfg_path)
-
-    # main_train_disorder_detection(global_config_path=cfg_path, valid=True, resume=False, experiment_name='dysarthria_70_30_contentmel')
-    # main_train_disorder_detection(global_config_path=cfg_path, valid=True, resume=False, experiment_name='dysarthria_70_30_contentmel_anonym')
-
-
-    main_eval_test_disorder_detection(global_config_path=cfg_path, experiment_name='dysarthria_70_30_contentmel', avg_epochs=50, model_epoch=5)
-    
-    
-    pvalue_ttest(global_config_path="/home/soroosh/Documents/Repositories/PathologyAnonym/config/config.yaml",
-         experiment_name='CLP_70_30_contentmel',
-         df1_path="/home/soroosh/Documents/Repositories_target_files/PathologyAnonym/CLP_70_30_contentmel/stat_logs/test_results.csv",
-         df2_path='/home/soroosh/Documents/Repositories_target_files/PathologyAnonym/CLP_70_30_contentmel_anonym/stat_logs/test_results.csv')
 
