@@ -35,8 +35,7 @@ checkpoint_name: checkpoint.tar
 trained_model_name: trained_model.pth
 
 # changeable items:
-file_path: /home/soroosh/Documents/datasets/anonymization/
-target_dir: /home/soroosh/Documents/Repositories_target_files/PathologyAnonym/Pitch_Anonym/
+file_path: /PATH/
+target_dir: /PATH/
 display_stats_freq: 10  # better to be 1 as it's epoch based; This also shows number of iterations after which we print the metrics
 num_epochs: 1500 # total number of iterations of training
-num_EER_repetitions_for_valid: 10 # important for TISV GE2E to average over some iterations to decide for better validation
