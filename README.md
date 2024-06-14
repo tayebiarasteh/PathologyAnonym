@@ -1,11 +1,11 @@
-# Automatic anonymization of pathological speech
+# The Impact of Speech Anonymization on Pathology and Its Limits
 
 
 
 Overview
 ------
 
-* This is the official repository of the paper [**Automatic anonymization of pathological speech**](TODO).
+* This is the official repository of the paper [**The Impact of Speech Anonymization on Pathology and Its Limits**](https://arxiv.org/abs/2404.08064).
 
 Abstract
 ------
@@ -50,12 +50,14 @@ Our source code for training and evaluation of the deep neural networks, speech 
 ------
 ### In case you use this repository, please cite the original paper:
 
-Tayebi Arasteh S, Noeth E, Schuster M, et al. *Automatic anonymization of pathological speech*. ArXiv (2024)
+Tayebi Arasteh S, Arias-Vergara T, Perez-Toro PA, et al. *The Impact of Speech Anonymization on Pathology and Its Limits*. arXiv:2404.08064 (2024).
 
 ### BibTex
 
     @article {pathology_anonym,
-      author = {Tayebi Arasteh, Soroosh and Noeth, Elmar, and Schuster, Maria and Maier, Andreas and Yang, Seung Hee},
-      title = {Automatic anonymization of pathological speech},
+      author = {Tayebi Arasteh, Soroosh and Arias-Vergara, Tomas and Perez-Toro, Paula Andrea and Weise, Tobias and Packhäuser, Kai and Schuster, Maria and Noeth, Elmar and Maier, Andreas and Yang, Seung Hee},
+      title = {The Impact of Speech Anonymization on Pathology and Its Limits},
       year = {2024},
+      journal = {arXiv:2404.08064},
+      doi = {10.48550/arXiv.2404.08064}
     }
